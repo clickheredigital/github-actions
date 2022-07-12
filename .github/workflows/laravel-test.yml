@@ -24,7 +24,7 @@ jobs:
     runs-on: self-hosted
     container:
       image: kirschbaumdevelopment/laravel-test-runner:${{ inputs.php_version }}
-      options: --user 1001
+      options: --user 1000
 
     services:
       postgres:
