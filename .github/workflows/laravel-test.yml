@@ -46,6 +46,10 @@ jobs:
         run: |
           composer install --no-scripts
 
+      - name: Setup DB for telescope
+        run: |
+          touch database/telescope.sqlite
+
       - name: Prepare Laravel Application
         run: |
           cp .env.testing .env
