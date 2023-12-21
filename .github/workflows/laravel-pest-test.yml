@@ -1,0 +1,58 @@
+name: Run Laravel Tests
+
+on:
+  workflow_call:
+    inputs:
+      database:
+        required: true
+        type: string
+      php_version:
+        required: false
+        type: string
+        default: "8.0"
+      postgres_user:
+        required: false
+        type: string
+        default: "postgres"
+      postgres_password:
+        required: false
+        type: string
+        default: "password"
+
+jobs:
+  tests:
+    runs-on: self-hosted
+    container:
+      image: kirschbaumdevelopment/laravel-test-runner:${{ inputs.php_version }}
+      options: --user root
+
+    services:
+      postgres:
+        image: postgres:11.5
+        env:
+          POSTGRES_USER: ${{ inputs.postgres_user }}
+          POSTGRES_PASSWORD: ${{ inputs.postgres_password }}
+          POSTGRES_DB: ${{ inputs.database }}
+          TELESCOPE_ENABLED: false
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install composer dependencies
+        run: |
+          composer install --no-scripts
+
+      - name: Setup DB for telescope
+        run: |
+          touch database/telescope.sqlite
+
+      - name: Prepare Laravel Application
+        run: |
+          cp .env.testing .env
+
+      - name: Run Tests
+        run: vendor/bin/pest
