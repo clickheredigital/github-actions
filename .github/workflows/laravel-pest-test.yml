@@ -18,6 +18,10 @@ on:
         required: false
         type: string
         default: "password"
+      build_assets:
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   tests:
@@ -46,6 +50,12 @@ jobs:
       - name: Install composer dependencies
         run: |
           composer install --no-scripts
+
+      - name: Build Assets
+        if: ${{ inputs.build_assets }}
+        run: |
+          npm install
+          npm run build
 
       - name: Setup DB for telescope
         run: |
